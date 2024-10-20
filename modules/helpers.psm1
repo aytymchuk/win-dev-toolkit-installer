@@ -52,7 +52,7 @@ function Install-Or-Update {
         [string]$systemName,
 
         [Parameter(Mandatory=$false)]
-        [bool]$skip = $false
+        [bool]$skipUpdate = $false
     )
 
     $isInstalledSystem = Test-ProgramInstalled $systemName
@@ -62,8 +62,8 @@ function Install-Or-Update {
         $installMethod = if ($isInstalledChoco) { "through Chocolatey" } else { "through a non-Chocolatey method" }
         Write-Host "$systemName is already installed $installMethod. Updating to the latest version..."
 
-        if ($skip) {
-            Write-Host "Skipping installation/update of $systemName..."
+        if ($skipUpdate) {
+            Write-Host "Skip update of $systemName..."
             return
         }    
 

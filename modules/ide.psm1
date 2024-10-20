@@ -6,7 +6,7 @@ function Install-IDEs {
     Install-Or-Update -packageName "jetbrainstoolbox" -systemName "JetBrains Toolbox"
 
     # Install or update JetBrains Rider
-    Install-Or-Update -packageName "jetbrains-rider" -systemName "JetBrains Rider" -skip
+    Install-Or-Update -packageName "jetbrains-rider" -systemName "JetBrains Rider" -skipUpdate $true
 
     # Install or update Visual Studio Code
     Install-Or-Update -packageName "visualstudiocode" -systemName "Visual Studio Code"

@@ -31,8 +31,10 @@ This tool installs the following components:
 
 2. General Development Tools
    - Git
+   - GitHub Desktop
    - Postman
    - GitKraken
+   - SourceTree
 
 3. Software Development Kits (SDKs)
    - .NET 8 SDK
@@ -157,13 +159,14 @@ The `helpers.psm1` module provides several utility functions that you can use in
    - Checks using Get-Package, Get-CimInstance, common installation directories, and registry entries.
    - Usage: `Test-ProgramInstalled "Visual Studio Code"`
 
-3. `Install-Or-Update($packageName, $systemName)`
+3. `Install-Or-Update($packageName, $systemName, $skipUpdate)`
    - Installs or updates a package using Chocolatey.
    - Parameters:
      - `$packageName`: The name of the package as it appears in the Chocolatey repository.
      - `$systemName`: The display name of the program as it might appear in Windows' installed programs list.
+     - `$skipUpdate`: (Optional). Default: false. A boolean value. If set to `$true`, the update for this package will be skipUpdateped.
    - This function first checks if the program is already installed (either through Chocolatey or other methods) before proceeding with installation or update.
-   - Usage: `Install-Or-Update "vscode" "Visual Studio Code"`
+   - Usage: `Install-Or-Update -packageName "vscode" -systemName "Visual Studio Code" -skipUpdate $false`
    - Note: The `$packageName` is typically the name used in Chocolatey commands, while `$systemName` is the more human-readable name that might be used in Windows' list of installed programs or in the program's installation directory.
 
 4. `Test-DotNetSdkInstalled($version)`
@@ -202,4 +205,27 @@ By leveraging these helper functions, you can ensure that your custom modules fo
 Contributions to improve the tool or add new features are welcome. Please submit a pull request or open an issue to discuss proposed changes.
 
 ## License
-[Specify your license here, e.g., MIT License]
+
+This project is licensed under the MIT License.
+
+MIT License
+
+Copyright (c) [2024] [Arsen Tymchuk]
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
