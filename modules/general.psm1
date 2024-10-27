@@ -16,6 +16,9 @@ function Install-GeneralApplications {
 
     # Install or update SourceTree
     Install-Or-Update -packageName "sourcetree" -systemName "SourceTree"
+
+    # Install or update Fiddler
+    Install-Or-Update -packageName "fiddler" -systemName "Fiddler"
 }
 
 # Export the function

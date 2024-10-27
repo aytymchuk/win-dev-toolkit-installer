@@ -67,13 +67,13 @@ function Install-Or-Update {
             return
         }    
 
-        choco upgrade $packageName -y --force
+        choco upgrade $packageName -y
     }
     else {
         Write-Host "$systemName is not installed. Installing..."
-        choco install $packageName -y --force
+        choco install $packageName -y
     }
-}
+} # Add this closing brace
 
 # Helper function to check if a specific .NET SDK version is installed
 function Test-DotNetSdkInstalled($version) {

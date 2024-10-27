@@ -35,6 +35,7 @@ This tool installs the following components:
    - Postman
    - GitKraken
    - SourceTree
+   - Fiddler
 
 3. Software Development Kits (SDKs)
    - .NET 8 SDK
@@ -47,6 +48,9 @@ This tool installs the following components:
    - JetBrains Toolbox
    - JetBrains Rider
    - Visual Studio Code
+   - Visual Studio 2022 Managed Desktop Build Tools
+   - Visual Studio 2022 Web Build Tools
+   - NuGet Credential Provider for .NET 8
 
 5. Azure Tools
    - Azure CLI

@@ -10,6 +10,24 @@ function Install-IDEs {
 
     # Install or update Visual Studio Code
     Install-Or-Update -packageName "visualstudiocode" -systemName "Visual Studio Code"
+
+    # Install Visual Studio 2022 workload for managed desktop build tools
+    Install-Or-Update -packageName "visualstudio2022-workload-manageddesktopbuildtools" -systemName "VS 2022 Managed Desktop Build Tools"
+
+    # Install Visual Studio 2022 workload for web build tools
+    Install-Or-Update -packageName "visualstudio2022-workload-webbuildtools" -systemName "VS 2022 Web Build Tools"
+
+    # Install NuGet Command Line
+    Install-Or-Update -packageName "nuget.commandline" -systemName "NuGet Command Line"
+
+    # Install NuGet Credential Provider
+    Install-NuGetCredentialProvider
+}
+
+function Install-NuGetCredentialProvider {
+
+    Write-Host "Installing NuGet Credential Provider for .NET 8"
+    Invoke-Expression "& { $(Invoke-RestMethod https://aka.ms/install-artifacts-credprovider.ps1) } -InstallNet8"
 }
 
 # Export the function
