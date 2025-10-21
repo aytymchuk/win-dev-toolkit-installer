@@ -1,48 +1,26 @@
-﻿# Helper function to check if a program exists
-function Test-Installed($name) {
-    Get-Command $name -ErrorAction SilentlyContinue
+# Test if a program is installed by checking the registry
+function Test-Installed {
+    param([string]$programName)
+    $x86 = ((Get-ChildItem "HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall") | Where-Object { $_.GetValue( "DisplayName" ) -like "*$programName*" } ).Length -gt 0;
+    $x64 = ((Get-ChildItem "HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall") | Where-Object { $_.GetValue( "DisplayName" ) -like "*$programName*" } ).Length -gt 0;
+    return $x86 -or $x64;
 }
 
-# Helper function to check if a program exists in the system (not only through Chocolatey)
-function Test-ProgramInstalled($programName) {
-    # Check using Get-Package (works for most modern installations)
-    if (Get-Package -Name $programName -ErrorAction SilentlyContinue) {
+# Test if a program is installed by checking common installation paths and registry
+function Test-ProgramInstalled {
+    param([string]$programName)
+    
+    # Check if the program is in the PATH
+    $inPath = Get-Command $programName -ErrorAction SilentlyContinue
+    if ($inPath) {
         return $true
     }
-
-    # Check using Get-CimInstance (replaces Get-WmiObject)
-    if (Get-CimInstance -ClassName Win32_Product -Filter "Name LIKE '%$programName%'" -ErrorAction SilentlyContinue) {
-        return $true
-    }
-
-    # Check common installation directories
-    $commonPaths = @(
-        "${env:ProgramFiles}\$programName",
-        "${env:ProgramFiles(x86)}\$programName",
-        "${env:LocalAppData}\Programs\$programName"
-    )
-    foreach ($path in $commonPaths) {
-        if (Test-Path $path) {
-            return $true
-        }
-    }
-
-    # Check registry for installed applications
-    $registryPaths = @(
-        'HKLM:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*',
-        'HKLM:\Software\Wow6432Node\Microsoft\Windows\CurrentVersion\Uninstall\*',
-        'HKCU:\Software\Microsoft\Windows\CurrentVersion\Uninstall\*'
-    )
-    foreach ($path in $registryPaths) {
-        if (Get-ItemProperty $path -ErrorAction SilentlyContinue | Where-Object { $_.DisplayName -like "*$programName*" }) {
-            return $true
-        }
-    }
-
-    return $false
+    
+    # Check registry for installed programs
+    return Test-Installed $programName
 }
 
-# Helper function to install or upgrade a package using Chocolatey
+# Install or update a package using Chocolatey
 function Install-Or-Update {
     param (
         [Parameter(Mandatory=$true)]
@@ -60,29 +38,35 @@ function Install-Or-Update {
 
     if ($isInstalledSystem) {
         $installMethod = if ($isInstalledChoco) { "through Chocolatey" } else { "through a non-Chocolatey method" }
-        Write-Host "$systemName is already installed $installMethod. Updating to the latest version..."
-
+        Write-Host "$systemName is already installed $installMethod."
+        
         if ($skipUpdate) {
-            Write-Host "Skip update of $systemName..."
+            Write-Host "Skipping update for $systemName as requested."
             return
         }    
 
+        Write-Host "Checking for updates for $systemName..."
         choco upgrade $packageName -y
     }
     else {
-        Write-Host "$systemName is not installed. Installing..."
+        Write-Host "$systemName is not installed. Installing via Chocolatey..."
         choco install $packageName -y
     }
-} # Add this closing brace
+}
 
-# Helper function to check if a specific .NET SDK version is installed
-function Test-DotNetSdkInstalled($version) {
+# Test if a specific .NET SDK version is installed
+function Test-DotNetSdkInstalled {
+    param([string]$version)
+    
     try {
-        $sdks = dotnet --list-sdks | Select-String "$version" -ErrorAction Stop
-        return $sdks
-    } catch {
-        Write-Host "Error checking for .NET SDK version $version"
-        return $null
+        $installedSdks = dotnet --list-sdks 2>$null
+        if ($installedSdks) {
+            return $installedSdks | Select-String -Pattern $version -Quiet
+        }
+        return $false
+    }
+    catch {
+        return $false
     }
 }
 

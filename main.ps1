@@ -30,6 +30,7 @@ function Install-Applications {
     Install-SDKs
     Install-IDEs
     Install-AzureTools
+    Install-AITools
 }
 
 function Request-Restart {

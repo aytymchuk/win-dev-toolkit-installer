@@ -11,14 +11,14 @@ function Install-GeneralApplications {
     # Install or update Postman
     Install-Or-Update -packageName "postman" -systemName "Postman"
 
-    # Install or update GitKraken
-    Install-Or-Update -packageName "gitkraken" -systemName "GitKraken"
-
     # Install or update SourceTree
     Install-Or-Update -packageName "sourcetree" -systemName "SourceTree"
 
     # Install or update Fiddler
     Install-Or-Update -packageName "fiddler" -systemName "Fiddler"
+
+    # Install or update Obsidian
+    Install-Or-Update -packageName "obsidian" -systemName "Obsidian"
 }
 
 # Export the function

@@ -17,6 +17,7 @@ The overall installation process works as follows:
    - Software Development Kits (SDKs)
    - Integrated Development Environments (IDEs)
    - Azure tools
+   - AI development tools
 
 5. Each module uses helper functions to check if a tool is already installed, and either installs it or updates it to the latest version.
 
@@ -33,16 +34,19 @@ This tool installs the following components:
    - Git
    - GitHub Desktop
    - Postman
-   - GitKraken
    - SourceTree
    - Fiddler
+   - Obsidian
 
 3. Software Development Kits (SDKs)
-   - .NET 8 SDK
+   - .NET 9 SDK
    - ASP.NET Core Runtime
    - Docker Desktop
    - Terraform
    - MongoDB Compass
+   - Python (required for MCP servers)
+   - Node.js (required for MCP servers)
+   - uv (Python package manager for MCP development)
 
 4. Integrated Development Environments (IDEs)
    - JetBrains Toolbox
@@ -50,12 +54,20 @@ This tool installs the following components:
    - Visual Studio Code
    - Visual Studio 2022 Managed Desktop Build Tools
    - Visual Studio 2022 Web Build Tools
-   - NuGet Credential Provider for .NET 8
+   - NuGet Credential Provider for .NET 9
 
 5. Azure Tools
    - Azure CLI
    - Azure Functions Core Tools
    - Azurite (Azure Storage Emulator)
+
+6. AI Development Tools
+   - Claude Desktop (Anthropic's AI assistant desktop app)
+   - Claude Code (VS Code extension for AI-powered coding)
+   - GitHub Copilot (AI pair programmer for VS Code)
+   - Cursor IDE (AI-powered code editor)
+   - Continue.dev (Open-source AI code assistant for VS Code)
+   - Codeium (Free AI coding assistant for VS Code)
 
 ## Installation Principle
 The installation process follows these principles:
@@ -140,6 +152,7 @@ You can easily extend this tool to install additional components or perform cust
        Install-SDKs
        Install-IDEs
        Install-AzureTools
+       Install-AITools      # Add AI tools installation
        Install-CustomTools  # Add your new function here
    }
    ```
