@@ -6,6 +6,8 @@
 # yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 
 language: en-US
+early_access: false
+tone_instructions: "Focus on PowerShell best practices, security considerations, and maintainability. Provide constructive feedback with specific examples when possible."
 
 reviews:
   profile: chill
@@ -134,8 +136,3 @@ chat:
       usage: auto
     linear:
       usage: auto
-
-# Global settings
-global_settings:
-  early_access: false
-  tone_instructions: "Focus on PowerShell best practices, security considerations, and maintainability. Provide constructive feedback with specific examples when possible."
