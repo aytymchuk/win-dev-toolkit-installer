@@ -3,66 +3,139 @@
 # Docs: https://docs.coderabbit.ai/getting-started/configure-coderabbit
 #       https://docs.coderabbit.ai/reference/configuration
 
-# Do not opt out of reviews
-opt_out: false
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
 
-# Allow CodeRabbit to use web search for additional context when helpful
-web_search:
-  enabled: true
+language: en-US
 
-# Configure automatic PR reviews
-auto_review:
-  enabled: true
-  # Abort any in-progress review if PR closes or is merged (saves CI resources)
-  abort_on_pr_close: true
-  # Events to trigger reviews (opened and updated/synchronized)
-  events:
-    pull_request:
-      opened: true
-      synchronize: true
+reviews:
+  profile: chill
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  review_status: true
+  commit_status: true
+  fail_commit_status: false
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+    ignore_title_keywords: []
+    labels: []
+    base_branches: []
+    ignore_usernames: []
+  auto_title_instructions: "use conventional commits structure: <type>[optional scope]: <description>"
+  collapse_walkthrough: true
+  suggested_labels: true
+  poem: false
+  changed_files_summary: true
+  sequence_diagrams: true
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  instructions: |
+    Repository context: Windows PowerShell installer with modular .psm1 files loaded by main.ps1. Modules install software via Chocolatey and other external tools.
+    Review goals: safety, idempotency, maintainability, and user experience for command-line installers.
+    Pass/Fail criteria:
+    1) Naming and exports:
+       - PASS if all new or modified functions use approved Verb-Noun naming (e.g., Install-X, Test-X, Get-X).
+       - FAIL if any module function introduced or changed does not follow Verb-Noun naming, or if a function intended for external use is not explicitly exported via Export-ModuleMember.
+    2) Comment-based help:
+       - WARN if public/exported functions lack comment-based help sections (.SYNOPSIS, .DESCRIPTION, .PARAMETER, .EXAMPLE).
+       - FAIL only when a PR adds or modifies a public function without any help at all.
+    3) Idempotency and pre-checks:
+       - PASS if install/upgrade routines check presence/state before acting (e.g., Test-ProgramInstalled, Test-DotNetSdkInstalled).
+       - FAIL if a new install path blindly runs choco install/upgrade or Start-Process without a preceding presence/state check.
+    4) SupportsShouldProcess (-WhatIf/-Confirm):
+       - For functions that change system state (install/upgrade, downloads, registry changes), expect [CmdletBinding(SupportsShouldProcess=$true)] and calls to ShouldProcess before performing actions.
+       - FAIL if such functions do not support -WhatIf/-Confirm or do not gate actions behind ShouldProcess.
+    5) Logging best practices:
+       - Prefer Write-Verbose or Write-Information within modules; Write-Host is acceptable only for CLI UX in main.ps1 or clearly interactive flows.
+       - WARN for non-interactive module code using Write-Host; FAIL only if Write-Host is used to emit error or critical operational messages that should be surfaced via Write-Error/throw.
+    6) Error handling of external commands:
+       - Wrap calls to external tools (choco, dotnet, code, Start-Process, Invoke-WebRequest/Invoke-RestMethod) with try/catch and provide actionable messages.
+       - FAIL if newly introduced external calls are unprotected and can leave the system in an inconsistent state.
+    7) Paths and environment:
+       - Avoid hard-coded paths; prefer environment variables, Test-Path checks, and robust fallbacks.
+       - WARN for new hard-coded paths without Test-Path checks; FAIL only if a path write/delete occurs without validation.
+    8) Security and execution policy:
+       - For Chocolatey bootstrap or similar, ensure TLS 1.2+ and execution policy is handled minimally and locally (Scope Process), as already done in chocolatey.psm1.
+       - WARN if a PR broadens scope unnecessarily (e.g., changing execution policy machine-wide).
+    9) Documentation alignment:
+       - Ensure README “Components List” reflects changes to modules (added/removed tools or SDK versions).
+       - WARN for mismatches; FAIL only if instructions would cause user confusion (e.g., installing tools not documented or removing documented tools without updating README).
+    10) Style and consistency:
+       - Validate parameter attributes/types and sensible defaults; prefer explicit types and [Parameter()] with Mandatory flags where appropriate.
+       - WARN for missing Parameter attributes on public functions; FAIL only when unsafe defaults or ambiguous parameter behavior is introduced.
 
-# Provide additional guidelines by file patterns
-# CodeRabbit will prioritize these when reviewing matching files
-file_patterns:
-  - patterns:
+    When in doubt, request clarifications rather than blocking. Focus blocking on changes that affect system safety or user trust (items 3, 4, 6).
+  pre_merge_checks:
+    docstrings:
+      mode: warning
+      threshold: 60
+    title:
+      mode: warning
+  
+  # Tools configuration for PowerShell and related technologies
+  tools:
+    # Security scanning
+    gitleaks:
+      enabled: true
+    semgrep:
+      enabled: true
+    # PowerShell and shell scripting
+    shellcheck:
+      enabled: true
+    # General linting
+    yamllint:
+      enabled: true
+    markdownlint:
+      enabled: true
+    
+  # Path filters - ignore common non-source paths and binary artifacts
+  path_filters:
+    - "!.git/"
+    - "!.github/"
+    - "!.vs/"
+    - "!bin/"
+    - "!obj/"
+    - "!**/*.exe"
+    - "!**/*.dll"
+    - "!**/*.zip"
+    - "!**/*.msi"
+    - "!**/*.log"
+
+# Knowledge base configuration
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
       - "modules/**/*.psm1"
       - "**/*.ps1"
-    guidelines: |
-      PowerShell modules and scripts:
-      - Use approved Verb-Noun naming for functions and cmdlets (e.g., Install-Or-Update).
-      - Add comment-based help for public functions (Synopsis, Description, Parameters, Examples).
-      - Prefer Write-Verbose/Write-Information over Write-Host in reusable modules; use Write-Host only for CLI UX.
-      - Support -WhatIf and -Confirm for functions that change system state (install/upgrade operations).
-      - Validate parameters with [Parameter()] attributes and use meaningful defaults.
-      - Ensure idempotency: check presence/state before install/upgrade; avoid redundant operations.
-      - Wrap external calls (choco, dotnet, code, Start-Process) with try/catch and handle errors clearly.
-      - Avoid hard-coded paths; use environment variables and Test-Path defensively.
-      - Prefer Test-ProgramInstalled and Install-Or-Update helpers to keep logic consistent.
-      - Keep exported functions explicit via Export-ModuleMember.
-
-  - patterns:
       - "readme.md"
-    guidelines: |
-      Documentation:
-      - Keep the Components List in sync with module implementations (e.g., .NET 9/10 SDKs, Azure/AI tools).
-      - Reflect version changes accurately (e.g., when upgrading dotnet or SDK packages).
-      - Provide clear usage instructions for install.bat and main.ps1, including execution policy notes.
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  jira:
+    usage: auto
+  linear:
+    usage: auto
 
-# Ignore common non-source paths and binary artifacts
-ignore_paths:
-  - ".git/"
-  - ".github/"
-  - ".vs/"
-  - "bin/"
-  - "obj/"
-  - "**/*.exe"
-  - "**/*.dll"
-  - "**/*.zip"
-  - "**/*.msi"
-  - "**/*.log"
+# Code generation configuration
+code_generation:
+  docstrings:
+    language: en-US
+  unit_tests:
+    path_instructions: []
 
-# Review style preferences (kept conservative; adjust to taste)
-review_preferences:
-  summarize_changes: true
-  tone: "constructive"
-  max_comments: 40
+# Chat configuration
+chat:
+  auto_reply: true
+  integrations:
+    jira:
+      usage: auto
+    linear:
+      usage: auto
+
+# Global settings
+global_settings:
+  early_access: false
+  tone_instructions: "Focus on PowerShell best practices, security considerations, and maintainability. Provide constructive feedback with specific examples when possible."
