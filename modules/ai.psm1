@@ -21,6 +21,9 @@ function Install-AITools {
 
     # Install Codeium VS Code Extension
     Install-CodeiumExtension
+
+    # Install CodeRabbit extension for VS Code and Cursor
+    Install-CodeRabbitExtension
 }
 
 function Install-ClaudeDesktop {
@@ -145,6 +148,50 @@ function Install-CodeiumExtension {
         }
     } else {
         Write-Host "VS Code is not installed. Skipping Codeium extension installation." -ForegroundColor Yellow
+    }
+}
+
+function Install-CodeRabbitExtension {
+    Write-Host "Installing CodeRabbit extension (VS Code and Cursor)..." -ForegroundColor Yellow
+
+    # VS Code
+    if (Test-Installed "code") {
+        try {
+            & code --install-extension CodeRabbit.coderabbit-vscode --force
+            Write-Host "CodeRabbit extension installed for VS Code successfully!" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "Failed to install CodeRabbit for VS Code: $($_.Exception.Message)" -ForegroundColor Red
+        }
+    } else {
+        Write-Host "VS Code is not installed. Skipping CodeRabbit installation for VS Code." -ForegroundColor Yellow
+    }
+
+    # Cursor
+    $cursorCli = Get-Command cursor -ErrorAction SilentlyContinue
+    $cursorExePath = "$env:LOCALAPPDATA\Programs\cursor\Cursor.exe"
+
+    if ($cursorCli) {
+        try {
+            & cursor --install-extension CodeRabbit.coderabbit-vscode --force
+            Write-Host "CodeRabbit extension installed for Cursor successfully!" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "Failed to install CodeRabbit for Cursor (via CLI): $($_.Exception.Message)" -ForegroundColor Red
+        }
+    }
+    elseif (Test-Path $cursorExePath) {
+        try {
+            & $cursorExePath --install-extension CodeRabbit.coderabbit-vscode --force
+            Write-Host "CodeRabbit extension installed for Cursor successfully (via executable path)!" -ForegroundColor Green
+        }
+        catch {
+            Write-Host "Failed to install CodeRabbit for Cursor (via executable path): $($_.Exception.Message)" -ForegroundColor Red
+            Write-Host "Ensure Cursor is installed and its CLI is available in PATH." -ForegroundColor Yellow
+        }
+    }
+    else {
+        Write-Host "Cursor IDE is not installed or CLI not available. Skipping CodeRabbit installation for Cursor." -ForegroundColor Yellow
     }
 }
 

@@ -1,0 +1,68 @@
+# CodeRabbit configuration for win-dev-toolkit-installer
+# Project type: Windows PowerShell installer with modular .psm1 files
+# Docs: https://docs.coderabbit.ai/getting-started/configure-coderabbit
+#       https://docs.coderabbit.ai/reference/configuration
+
+# Do not opt out of reviews
+opt_out: false
+
+# Allow CodeRabbit to use web search for additional context when helpful
+web_search:
+  enabled: true
+
+# Configure automatic PR reviews
+auto_review:
+  enabled: true
+  # Abort any in-progress review if PR closes or is merged (saves CI resources)
+  abort_on_pr_close: true
+  # Events to trigger reviews (opened and updated/synchronized)
+  events:
+    pull_request:
+      opened: true
+      synchronize: true
+
+# Provide additional guidelines by file patterns
+# CodeRabbit will prioritize these when reviewing matching files
+file_patterns:
+  - patterns:
+      - "modules/**/*.psm1"
+      - "**/*.ps1"
+    guidelines: |
+      PowerShell modules and scripts:
+      - Use approved Verb-Noun naming for functions and cmdlets (e.g., Install-Or-Update).
+      - Add comment-based help for public functions (Synopsis, Description, Parameters, Examples).
+      - Prefer Write-Verbose/Write-Information over Write-Host in reusable modules; use Write-Host only for CLI UX.
+      - Support -WhatIf and -Confirm for functions that change system state (install/upgrade operations).
+      - Validate parameters with [Parameter()] attributes and use meaningful defaults.
+      - Ensure idempotency: check presence/state before install/upgrade; avoid redundant operations.
+      - Wrap external calls (choco, dotnet, code, Start-Process) with try/catch and handle errors clearly.
+      - Avoid hard-coded paths; use environment variables and Test-Path defensively.
+      - Prefer Test-ProgramInstalled and Install-Or-Update helpers to keep logic consistent.
+      - Keep exported functions explicit via Export-ModuleMember.
+
+  - patterns:
+      - "readme.md"
+    guidelines: |
+      Documentation:
+      - Keep the Components List in sync with module implementations (e.g., .NET 9/10 SDKs, Azure/AI tools).
+      - Reflect version changes accurately (e.g., when upgrading dotnet or SDK packages).
+      - Provide clear usage instructions for install.bat and main.ps1, including execution policy notes.
+
+# Ignore common non-source paths and binary artifacts
+ignore_paths:
+  - ".git/"
+  - ".github/"
+  - ".vs/"
+  - "bin/"
+  - "obj/"
+  - "**/*.exe"
+  - "**/*.dll"
+  - "**/*.zip"
+  - "**/*.msi"
+  - "**/*.log"
+
+# Review style preferences (kept conservative; adjust to taste)
+review_preferences:
+  summarize_changes: true
+  tone: "constructive"
+  max_comments: 40

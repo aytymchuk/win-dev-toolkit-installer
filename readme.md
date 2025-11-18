@@ -39,8 +39,10 @@ This tool installs the following components:
    - Obsidian
 
 3. Software Development Kits (SDKs)
+   - .NET 10 SDK
+   - ASP.NET Core Runtime 10
    - .NET 9 SDK
-   - ASP.NET Core Runtime
+   - ASP.NET Core Runtime 9
    - Docker Desktop
    - Terraform
    - MongoDB Compass
@@ -68,6 +70,7 @@ This tool installs the following components:
    - Cursor IDE (AI-powered code editor)
    - Continue.dev (Open-source AI code assistant for VS Code)
    - Codeium (Free AI coding assistant for VS Code)
+   - CodeRabbit (Code review assistant extension for VS Code and Cursor)
 
 ## Installation Principle
 The installation process follows these principles:
