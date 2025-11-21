@@ -1,0 +1,138 @@
+# CodeRabbit configuration for win-dev-toolkit-installer
+# Project type: Windows PowerShell installer with modular .psm1 files
+# Docs: https://docs.coderabbit.ai/getting-started/configure-coderabbit
+#       https://docs.coderabbit.ai/reference/configuration
+
+# yaml-language-server: $schema=https://coderabbit.ai/integrations/schema.v2.json
+
+language: en-US
+early_access: false
+tone_instructions: "Focus on PowerShell best practices, security considerations, and maintainability. Provide constructive feedback with specific examples when possible."
+
+reviews:
+  profile: chill
+  high_level_summary: true
+  high_level_summary_in_walkthrough: true
+  review_status: true
+  commit_status: true
+  fail_commit_status: false
+  auto_review:
+    enabled: true
+    drafts: false
+    auto_incremental_review: true
+    ignore_title_keywords: []
+    labels: []
+    base_branches: []
+    ignore_usernames: []
+  auto_title_instructions: "use conventional commits structure: <type>[optional scope]: <description>"
+  collapse_walkthrough: true
+  suggested_labels: true
+  poem: false
+  changed_files_summary: true
+  sequence_diagrams: true
+  estimate_code_review_effort: true
+  assess_linked_issues: true
+  instructions: |
+    Repository context: Windows PowerShell installer with modular .psm1 files loaded by main.ps1. Modules install software via Chocolatey and other external tools.
+    Review goals: safety, idempotency, maintainability, and user experience for command-line installers.
+    Pass/Fail criteria:
+    1) Naming and exports:
+       - PASS if all new or modified functions use approved Verb-Noun naming (e.g., Install-X, Test-X, Get-X).
+       - FAIL if any module function introduced or changed does not follow Verb-Noun naming, or if a function intended for external use is not explicitly exported via Export-ModuleMember.
+    2) Comment-based help:
+       - WARN if public/exported functions lack comment-based help sections (.SYNOPSIS, .DESCRIPTION, .PARAMETER, .EXAMPLE).
+       - FAIL only when a PR adds or modifies a public function without any help at all.
+    3) Idempotency and pre-checks:
+       - PASS if install/upgrade routines check presence/state before acting (e.g., Test-ProgramInstalled, Test-DotNetSdkInstalled).
+       - FAIL if a new install path blindly runs choco install/upgrade or Start-Process without a preceding presence/state check.
+    4) SupportsShouldProcess (-WhatIf/-Confirm):
+       - For functions that change system state (install/upgrade, downloads, registry changes), expect [CmdletBinding(SupportsShouldProcess=$true)] and calls to ShouldProcess before performing actions.
+       - FAIL if such functions do not support -WhatIf/-Confirm or do not gate actions behind ShouldProcess.
+    5) Logging best practices:
+       - Prefer Write-Verbose or Write-Information within modules; Write-Host is acceptable only for CLI UX in main.ps1 or clearly interactive flows.
+       - WARN for non-interactive module code using Write-Host; FAIL only if Write-Host is used to emit error or critical operational messages that should be surfaced via Write-Error/throw.
+    6) Error handling of external commands:
+       - Wrap calls to external tools (choco, dotnet, code, Start-Process, Invoke-WebRequest/Invoke-RestMethod) with try/catch and provide actionable messages.
+       - FAIL if newly introduced external calls are unprotected and can leave the system in an inconsistent state.
+    7) Paths and environment:
+       - Avoid hard-coded paths; prefer environment variables, Test-Path checks, and robust fallbacks.
+       - WARN for new hard-coded paths without Test-Path checks; FAIL only if a path write/delete occurs without validation.
+    8) Security and execution policy:
+       - For Chocolatey bootstrap or similar, ensure TLS 1.2+ and execution policy is handled minimally and locally (Scope Process), as already done in chocolatey.psm1.
+       - WARN if a PR broadens scope unnecessarily (e.g., changing execution policy machine-wide).
+    9) Documentation alignment:
+       - Ensure README “Components List” reflects changes to modules (added/removed tools or SDK versions).
+       - WARN for mismatches; FAIL only if instructions would cause user confusion (e.g., installing tools not documented or removing documented tools without updating README).
+    10) Style and consistency:
+       - Validate parameter attributes/types and sensible defaults; prefer explicit types and [Parameter()] with Mandatory flags where appropriate.
+       - WARN for missing Parameter attributes on public functions; FAIL only when unsafe defaults or ambiguous parameter behavior is introduced.
+
+    When in doubt, request clarifications rather than blocking. Focus blocking on changes that affect system safety or user trust (items 3, 4, 6).
+  pre_merge_checks:
+    docstrings:
+      mode: warning
+      threshold: 60
+    title:
+      mode: warning
+  
+  # Tools configuration for PowerShell and related technologies
+  tools:
+    # Security scanning
+    gitleaks:
+      enabled: true
+    semgrep:
+      enabled: true
+    # PowerShell and shell scripting
+    shellcheck:
+      enabled: true
+    # General linting
+    yamllint:
+      enabled: true
+    markdownlint:
+      enabled: true
+    
+  # Path filters - ignore common non-source paths and binary artifacts
+  path_filters:
+    - "!.git/"
+    - "!.github/"
+    - "!.vs/"
+    - "!bin/"
+    - "!obj/"
+    - "!**/*.exe"
+    - "!**/*.dll"
+    - "!**/*.zip"
+    - "!**/*.msi"
+    - "!**/*.log"
+
+# Knowledge base configuration
+knowledge_base:
+  code_guidelines:
+    enabled: true
+    filePatterns:
+      - "modules/**/*.psm1"
+      - "**/*.ps1"
+      - "readme.md"
+  learnings:
+    scope: auto
+  issues:
+    scope: auto
+  jira:
+    usage: auto
+  linear:
+    usage: auto
+
+# Code generation configuration
+code_generation:
+  docstrings:
+    language: en-US
+  unit_tests:
+    path_instructions: []
+
+# Chat configuration
+chat:
+  auto_reply: true
+  integrations:
+    jira:
+      usage: auto
+    linear:
+      usage: auto
